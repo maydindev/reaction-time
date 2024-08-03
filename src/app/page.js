@@ -1,8 +1,91 @@
+"use client";
 import Image from "next/image";
 import styles from "./page.module.css";
+import { useState, useEffect } from "react";
 
 export default function Home() {
+  function ReactionTest() {
+    const [showStartButton, setShowStartButton] = useState(true);
+    const [showRedBox, setShowRedBox] = useState(false);
+    const [showGreenBox, setShowGreenBox] = useState(false);
+    const [startTime, setStartTime] = useState(null);
+    const [clickDurationText, setClickDurationText] = useState(null);
+    const [gameStarted, setGameStarted] = useState(false);
+
+    
+    useEffect(() => {
+      if(gameStarted) {
+        const timer = setTimeout(() => {
+          setShowRedBox(false);  
+          setShowGreenBox(true);
+        }, 5000)
+        return () => clearTimeout(timer);
+      }    
+    }, [gameStarted]);
+    
+
+    const handleMouseDown = () => {
+      setStartTime(Date.now());
+    };
+
+    const handleMouseUp = () => {
+      if (startTime !== null) {
+        const endTime = Date.now();
+        const duration = endTime - startTime;
+        setClickDurationText(`You took ${duration} ms!`);
+        setStartTime(null); // Reset the start time
+        setShowGreenBox(false);
+        setShowStartButton(true)
+        setGameStarted(false);
+      }
+    };
+
+    return (
+      <div className={styles.myContainer}>
+        <div>
+          {
+            showStartButton && <button className={styles.startButton}
+              onClick={() => {
+                setShowStartButton(false)
+                setShowRedBox(true); 
+                setClickDurationText("")
+                setGameStarted(true);
+              }}
+            >
+              Start Game
+            </button>
+          }
+          </div>
+          <div>
+      
+          {showRedBox && <button className={styles.redBox} onClick={() => {
+                setClickDurationText("You clicked too early!");
+                setShowRedBox(false);
+                setShowGreenBox(false);
+                setShowStartButton(true)
+                setGameStarted(false);
+              }}></button>}
+          </div>
+          <div>
+          {showGreenBox && <button
+              className={styles.greenBox}
+              onMouseDown={handleMouseDown}
+              onMouseUp={handleMouseUp}
+            ></button>}
+            
+          
+        </div>
+      
+
+        <h2>{clickDurationText}</h2>
+      </div>
+    );
+  }
+
   return (
+    <ReactionTest />
+
+    /*
     <main className={styles.main}>
       <div className={styles.description}>
         <p>
@@ -91,5 +174,6 @@ export default function Home() {
         </a>
       </div>
     </main>
+    */
   );
 }
